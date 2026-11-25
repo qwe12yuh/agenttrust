@@ -1,0 +1,8 @@
+{
+  "chainId": 56,
+  "agentTrustAddress": "0x69b28844B91d618cE385960D9523cf4332906892",
+  "passportRendererAddress": "0xD27a4aE1C3eed440634BD6b0933952B60cdE1A8F",
+  "agentIdRegistry": "0x60b9262456de011f7d15a54cdd8c48baaa8b022f",
+  "deployer": "0xF2f821FC869Cb9D6e13c2101b5Fa8Aea63D53B40",
+  "deployedAt": "2026-11-25T13:25:47.741Z"
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.local
+contracts/cache/
+contracts/artifacts/
+contracts/typechain-types/
+frontend/dist/
+*.tsbuildinfo
+*.log
