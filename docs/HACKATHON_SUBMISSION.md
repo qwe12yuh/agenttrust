@@ -8,10 +8,11 @@
 ## Pre-Submission Checklist
 
 - [x] Deploy `AgentTrust.sol` (`0x69b28844B91d618cE385960D9523cf4332906892`) & `PassportRenderer.sol` (`0xD27a4aE1C3eed440634BD6b0933952B60cdE1A8F`) to **BNB Smart Chain Mainnet (chainId 56)** bound to `0x60b9262456de011f7d15a54cdd8c48baaa8b022f`
-- [ ] Verify & open-source contract source code on **BscScan** (`npx hardhat verify --network bsc ...`)
+- [x] Verify & open-source contract source code on **BscScan** (`AgentTrust`: https://bscscan.com/address/0x69b28844B91d618cE385960D9523cf4332906892#code , `PassportRenderer`: https://bscscan.com/address/0xD27a4aE1C3eed440634BD6b0933952B60cdE1A8F#code )
 - [x] Push full repo to public **GitHub** (`https://github.com/qwe12yuh/agenttrust`)
-- [x] Deploy `frontend/` live to **GitHub Pages** (`https://qwe12yuh.github.io/agenttrust/`)
+- [x] Deploy `frontend/` live to **GitHub Pages HTTPS** (`https://qwe12yuh.github.io/agenttrust/`)
 - [x] Register Genesis Passport `#1` (`feiqiqi.ai`, Trust Score `150 PTS`) live on BSC Mainnet via `baw contract-call`: https://bscscan.com/tx/0xfd64f6821ddf75d421888c2bb598ae17c001b548d1e9664ddb0ac2ff8f7c3ff2
+- [x] Launch live Sybil-Proof Campaign `#0` (`BNB Chain Agent ID Hackathon Genesis Check-In`) via `baw contract-call`: https://bscscan.com/tx/0xb8bb43d3123e64c7135d9a06eb8767c9ff2da070dc6bfe49e63f8d06fe4f7376
 - [ ] (Recommended) Launch Genesis Campaign #0 (e.g., 40–50 slots × `0.0005 BNB`) to organically attract **30+ unique real `.ai` Agent ID interactors**
 - [ ] Confirm `getProtocolStats().totalUniqueInteractors >= 30` on BscScan before December 9, 08:00 UTC
 - [ ] Submit project form via the official Binance Wallet Announcement portal
