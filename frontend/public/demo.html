@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentTrust — 60s Product Demo Video (Binance Wallet × BNB Chain Agent ID Hackathon)</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: #0b0e11;
+        color: #eaecef;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 28px 16px;
+      }
+      .wrap { width: 100%; max-width: 1040px; }
+      .header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .title { font-size: 22px; font-weight: 800; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .gold { color: #f0b90b; }
+      .sub { color: #848e9c; font-size: 13px; margin-top: 4px; }
+      .links { display: flex; flex-wrap: wrap; gap: 8px; }
+      .btn {
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid #2b3139;
+        color: #eaecef;
+        background: #181a20;
+      }
+      .btn-gold { background: #f0b90b; color: #0b0e11; border-color: #f0b90b; }
+      .player-box {
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid #2b3139;
+        background: #000;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      }
+      video { width: 100%; display: block; aspect-ratio: 16 / 9; }
+      .meta {
+        margin-top: 16px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        border: 1px solid #2b3139;
+        background: #14171d;
+        font-size: 12px;
+        color: #9da7b5;
+        line-height: 1.7;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .meta a { color: #f0b90b; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div>
+          <div class="title">Agent<span class="gold">Trust</span> · 60s Product Demo</div>
+          <div class="sub">Binance Wallet × BNB Chain Agent ID Hackathon — Live BSC Mainnet Walkthrough</div>
+        </div>
+        <div class="links">
+          <a class="btn btn-gold" href="./">Open Live dApp →</a>
+          <a class="btn" href="./demo.mp4" download="agenttrust-demo.mp4">Download MP4</a>
+          <a class="btn" href="https://bscscan.com/address/0x69b28844B91d618cE385960D9523cf4332906892#code" target="_blank">BscScan Verified</a>
+          <a class="btn" href="https://github.com/qwe12yuh/agenttrust" target="_blank">GitHub</a>
+        </div>
+      </div>
+
+      <div class="player-box">
+        <video controls autoplay muted playsinline preload="metadata" src="./demo.mp4"></video>
+      </div>
+
+      <div class="meta">
+        <div>• Core Contract (BSC Mainnet, BscScan Verified): <a href="https://bscscan.com/address/0x69b28844B91d618cE385960D9523cf4332906892#code" target="_blank">0x69b28844B91d618cE385960D9523cf4332906892</a></div>
+        <div>• On-Chain SVG Renderer (Sourcify Verified): <a href="https://bscscan.com/address/0xD27a4aE1C3eed440634BD6b0933952B60cdE1A8F#code" target="_blank">0xD27a4aE1C3eed440634BD6b0933952B60cdE1A8F</a></div>
+        <div>• Agent ID Registry (SPACE ID HandleRegistry): <a href="https://bscscan.com/address/0x60b9262456de011f7d15a54cdd8c48baaa8b022f" target="_blank">0x60b9262456de011f7d15a54cdd8c48baaa8b022f</a></div>
+        <div>• Genesis #1 (feiqiqi.ai via baw CLI): <a href="https://bscscan.com/tx/0xfd64f6821ddf75d421888c2bb598ae17c001b548d1e9664ddb0ac2ff8f7c3ff2" target="_blank">0xfd64f682...f7c3ff2</a> · Live DROP #0: <a href="https://bscscan.com/tx/0xb8bb43d3123e64c7135d9a06eb8767c9ff2da070dc6bfe49e63f8d06fe4f7376" target="_blank">0xb8bb43d3...e4f7376</a></div>
+      </div>
+    </div>
+  </body>
+</html>
