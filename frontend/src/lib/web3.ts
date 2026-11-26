@@ -3,7 +3,7 @@ import {
   AGENT_TRUST_ADDRESS,
   BSC_CHAIN_ID,
   BSC_CHAIN_ID_HEX,
-  BSC_RPC_URL,
+  BSC_RPC_URLS,
   HANDLE_REGISTRY_ABI,
   HANDLE_REGISTRY_ADDRESS,
 } from "../config";
@@ -16,23 +16,49 @@ declare global {
   }
 }
 
+let activeRpcIndex = 0;
+
 export function getInjectedProvider(): any | null {
   if (typeof window === "undefined") return null;
   // Prefer Binance Web3 Wallet if present, otherwise standard EIP-1193 provider
   return window.binancew3w?.ethereum || window.ethereum || null;
 }
 
-export function getReadProvider(): JsonRpcProvider {
-  return new JsonRpcProvider(BSC_RPC_URL, BSC_CHAIN_ID);
+export function getReadProvider(rpcUrl = BSC_RPC_URLS[activeRpcIndex]): JsonRpcProvider {
+  return new JsonRpcProvider(rpcUrl, BSC_CHAIN_ID, { staticNetwork: true });
 }
 
-export function getHandleRegistryReader() {
-  return new Contract(HANDLE_REGISTRY_ADDRESS, HANDLE_REGISTRY_ABI, getReadProvider());
+/**
+ * Executes a read-only BSC RPC task with automatic failover across multiple official BNB Chain dataseeds.
+ */
+export async function withBscReadFallback<T>(task: (provider: JsonRpcProvider) => Promise<T>): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < BSC_RPC_URLS.length; attempt++) {
+    const idx = (activeRpcIndex + attempt) % BSC_RPC_URLS.length;
+    const provider = getReadProvider(BSC_RPC_URLS[idx]);
+    try {
+      const result = await Promise.race([
+        task(provider),
+        new Promise<never>((_, reject) =>
+          window.setTimeout(() => reject(new Error(`RPC timeout on ${BSC_RPC_URLS[idx]}`)), 7000)
+        ),
+      ]);
+      activeRpcIndex = idx;
+      return result;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
 }
 
-export function getAgentTrustReader(contractAddress = AGENT_TRUST_ADDRESS) {
+export function getHandleRegistryReader(provider = getReadProvider()) {
+  return new Contract(HANDLE_REGISTRY_ADDRESS, HANDLE_REGISTRY_ABI, provider);
+}
+
+export function getAgentTrustReader(contractAddress = AGENT_TRUST_ADDRESS, provider = getReadProvider()) {
   if (!contractAddress) return null;
-  return new Contract(contractAddress, AGENT_TRUST_ABI, getReadProvider());
+  return new Contract(contractAddress, AGENT_TRUST_ABI, provider);
 }
 
 export async function getAgentTrustWriter(contractAddress = AGENT_TRUST_ADDRESS) {
@@ -65,7 +91,7 @@ export async function switchToBsc(injected = getInjectedProvider()) {
             chainId: BSC_CHAIN_ID_HEX,
             chainName: "BNB Smart Chain",
             nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
-            rpcUrls: ["https://bsc-dataseed.binance.org"],
+            rpcUrls: BSC_RPC_URLS,
             blockExplorerUrls: ["https://bscscan.com"],
           },
         ],

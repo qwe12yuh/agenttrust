@@ -3,7 +3,13 @@ export const HANDLE_REGISTRY_ADDRESS = "0x60b9262456de011f7d15a54cdd8c48baaa8b02
 
 export const BSC_CHAIN_ID = 56;
 export const BSC_CHAIN_ID_HEX = "0x38";
-export const BSC_RPC_URL = import.meta.env.VITE_BSC_RPC_URL || "https://bsc-dataseed.binance.org";
+export const BSC_RPC_URLS = [
+  import.meta.env.VITE_BSC_RPC_URL || "https://bsc-dataseed1.bnbchain.org",
+  "https://bsc-dataseed1.defibit.io",
+  "https://bsc-dataseed1.ninicoin.io",
+  "https://bsc-dataseed.binance.org",
+].filter((v, idx, arr) => Boolean(v) && arr.indexOf(v) === idx);
+export const BSC_RPC_URL = BSC_RPC_URLS[0];
 export const BSCSCAN_BASE = "https://bscscan.com";
 
 // Deployed AgentTrust contract address on BNB Smart Chain Mainnet (chainId 56)

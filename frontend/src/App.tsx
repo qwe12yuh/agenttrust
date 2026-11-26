@@ -49,6 +49,7 @@ import {
   normalizeHandleInput,
   shortAddr,
   switchToBsc,
+  withBscReadFallback,
 } from "./lib/web3";
 
 type TabId = "passport" | "directory" | "drops" | "bounties" | "skill";
@@ -166,17 +167,50 @@ export default function App() {
   };
 
   const loadProtocolData = useCallback(async () => {
-    const reader = getAgentTrustReader();
-    if (!reader) return;
+    if (!AGENT_TRUST_ADDRESS) return;
 
     try {
-      const [s, ag, vf, ca, bo] = await Promise.all([
-        reader.getProtocolStats(),
-        reader.getAgentsPage(0, 50),
-        reader.getRecentVouches(10),
-        reader.getCampaignsPage(0, 20),
-        reader.getBountiesPage(0, 20),
-      ]);
+      const { s, ag, vf, parsedCampaigns, bo } = await withBscReadFallback(async (provider) => {
+        const reader = getAgentTrustReader(AGENT_TRUST_ADDRESS, provider)!;
+        const [s, ag, vf, ca, bo] = await Promise.all([
+          reader.getProtocolStats(),
+          reader.getAgentsPage(0, 50),
+          reader.getRecentVouches(10),
+          reader.getCampaignsPage(0, 20),
+          reader.getBountiesPage(0, 20),
+        ]);
+        const parsedCampaigns: CampaignItem[] = await Promise.all(
+          ca.map(async (c: any) => {
+            const id = Number(c.id);
+            let recentClaims = [];
+            try {
+              const rawClaims = await reader.getCampaignClaims(id, 6);
+              recentClaims = rawClaims.map((r: any) => ({
+                claimer: r.claimer,
+                handle: r.handle,
+                timestamp: Number(r.timestamp),
+                response: r.response,
+              }));
+            } catch {
+              recentClaims = [];
+            }
+            return {
+              id,
+              creator: c.creator,
+              rewardPerClaim: BigInt(c.rewardPerClaim),
+              maxClaims: Number(c.maxClaims),
+              claimedCount: Number(c.claimedCount),
+              createdAt: Number(c.createdAt),
+              deadline: Number(c.deadline),
+              closed: Boolean(c.closed),
+              title: c.title,
+              prompt: c.prompt,
+              recentClaims,
+            };
+          })
+        );
+        return { s, ag, vf, parsedCampaigns, bo };
+      });
 
       setStats({
         totalAgents: Number(s.totalAgents),
@@ -217,36 +251,6 @@ export default function App() {
         }))
       );
 
-      const parsedCampaigns: CampaignItem[] = await Promise.all(
-        ca.map(async (c: any) => {
-          const id = Number(c.id);
-          let recentClaims = [];
-          try {
-            const rawClaims = await reader.getCampaignClaims(id, 6);
-            recentClaims = rawClaims.map((r: any) => ({
-              claimer: r.claimer,
-              handle: r.handle,
-              timestamp: Number(r.timestamp),
-              response: r.response,
-            }));
-          } catch {
-            recentClaims = [];
-          }
-          return {
-            id,
-            creator: c.creator,
-            rewardPerClaim: BigInt(c.rewardPerClaim),
-            maxClaims: Number(c.maxClaims),
-            claimedCount: Number(c.claimedCount),
-            createdAt: Number(c.createdAt),
-            deadline: Number(c.deadline),
-            closed: Boolean(c.closed),
-            title: c.title,
-            prompt: c.prompt,
-            recentClaims,
-          };
-        })
-      );
       setCampaigns(parsedCampaigns);
 
       setBounties(
@@ -278,26 +282,28 @@ export default function App() {
       return;
     }
     try {
-      const reg = getHandleRegistryReader();
-      const handle: string = await reg.handleOf(addr);
-      setMyHandle(handle || "");
-      setBawFrom(addr);
+      await withBscReadFallback(async (provider) => {
+        const reg = getHandleRegistryReader(provider);
+        const handle: string = await reg.handleOf(addr);
+        setMyHandle(handle || "");
+        setBawFrom(addr);
 
-      const reader = getAgentTrustReader();
-      if (reader && handle) {
-        const [profile, svg] = await Promise.all([
-          reader.getAgentProfile(addr),
-          reader.renderPassportSVG(addr),
-        ]);
-        const serialNum = Number(profile.serial);
-        setMySerial(serialNum);
-        if (serialNum > 0) {
-          setCapMask(Number(profile.capabilitiesMask));
-          setBio(profile.bio || "");
-          setEndpoint(profile.endpoint || "");
+        const reader = getAgentTrustReader(AGENT_TRUST_ADDRESS, provider);
+        if (reader && handle) {
+          const [profile, svg] = await Promise.all([
+            reader.getAgentProfile(addr),
+            reader.renderPassportSVG(addr),
+          ]);
+          const serialNum = Number(profile.serial);
+          setMySerial(serialNum);
+          if (serialNum > 0) {
+            setCapMask(Number(profile.capabilitiesMask));
+            setBio(profile.bio || "");
+            setEndpoint(profile.endpoint || "");
+          }
+          setMySvg(svg);
         }
-        setMySvg(svg);
-      }
+      });
     } catch (err) {
       console.error("Identity lookup error:", err);
     }
@@ -337,15 +343,18 @@ export default function App() {
     if (overrideInput) setLookupInput(overrideInput);
     setLookupLoading(true);
     try {
-      const reg = getHandleRegistryReader();
-      const owner: string = await reg.ownerOfHandle(clean);
-      const found = owner !== ZeroAddress;
-      let trustScore: number | null = null;
-      const reader = getAgentTrustReader();
-      if (found && reader) {
-        trustScore = Number(await reader.getTrustScore(owner));
-      }
-      setLookupResult({ handle: clean, owner, trustScore, found });
+      const res = await withBscReadFallback(async (provider) => {
+        const reg = getHandleRegistryReader(provider);
+        const owner: string = await reg.ownerOfHandle(clean);
+        const found = owner !== ZeroAddress;
+        let trustScore: number | null = null;
+        const reader = getAgentTrustReader(AGENT_TRUST_ADDRESS, provider);
+        if (found && reader) {
+          trustScore = Number(await reader.getTrustScore(owner));
+        }
+        return { handle: clean, owner, trustScore, found };
+      });
+      setLookupResult(res);
     } catch (err: any) {
       showToast("err", err?.shortMessage || err?.message || "Lookup failed");
     } finally {
